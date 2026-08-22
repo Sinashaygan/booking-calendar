@@ -1,0 +1,58 @@
+* {
+  box-sizing: border-box;
+}
+
+html {
+  direction: rtl;
+}
+
+body {
+  margin: 0;
+  line-height: 1.8;
+  background: #f8fafc;
+}
+
+.fc {
+  direction: rtl;
+  --fc-border-color: #e2e8f0;
+  --fc-today-bg-color: rgba(37, 99, 235, 0.06);
+  --fc-page-bg-color: #ffffff;
+  --fc-neutral-bg-color: #f8fafc;
+  --fc-list-event-hover-bg-color: #eff6ff;
+}
+
+.fc .fc-toolbar-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.fc .fc-col-header-cell-cushion,
+.fc .fc-daygrid-day-number {
+  color: #334155;
+  text-decoration: none;
+}
+
+.fc .fc-timegrid-slot {
+  height: 2.5rem;
+}
+
+.fc .fc-event {
+  border-radius: 6px;
+  border-width: 1px;
+  cursor: pointer;
+  padding: 2px 4px;
+}
+
+.fc .fc-timegrid-event {
+  min-height: 24px;
+}
+
+@media (max-width: 600px) {
+  .fc .fc-timegrid-slot {
+    height: 2rem;
+  }
+
+  .fc .fc-event-title {
+    font-size: 0.75rem;
+  }
+}
