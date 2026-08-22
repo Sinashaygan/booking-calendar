@@ -3,9 +3,15 @@
 import Link from "next/link";
 
 import { Box, Button, Paper, Stack, Typography } from "@mui/material";
-import { CalendarDays, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
+import { CalendarView } from "@/entities/calendar/model/types";
+import { useState } from "react";
+import { CalendarGrid } from "./CalendarGrid";
 
 export function BookingCalendar() {
+  const [currentDate, setCurrentDate] = useState(() => new Date());
+  const [currentView, setCurrentView] = useState<CalendarView>("timeGridWeek");
+
   return (
     <Box
       component="main"
@@ -54,47 +60,20 @@ export function BookingCalendar() {
           elevation={0}
           sx={{
             minHeight: 520,
+            overflow: "hidden",
             border: "1px solid",
             borderColor: "divider",
             borderRadius: 3,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            p: 4,
+            p: { xs: 1, md: 2 },
           }}
         >
-          <Stack
-            spacing={2}
-            sx={{
-              alignItems: "center",
-              textAlign: "center",
-              maxWidth: 460,
-            }}
-          >
-            <CalendarDays size={52} color="#2563eb" />
-
-            <Typography variant="h6" sx={{ fontWeight: 700 }}>
-              Calendar Shell آماده است
-            </Typography>
-
-            <Typography variant="body2" color="text.secondary">
-              در مرحله بعد، موتور FullCalendar، Toolbar، Viewهای مختلف و
-              Resourceهای رزرو به این بخش اضافه خواهند شد.
-            </Typography>
-
-            <Typography
-              variant="caption"
-              color="success.main"
-              sx={{
-                borderRadius: 10,
-                bgcolor: "success.50",
-                px: 2,
-                py: 0.75,
-              }}
-            >
-              Bootstrap موفق بود
-            </Typography>
-          </Stack>
+          <CalendarGrid
+            view={currentView}
+            date={currentDate}
+            events={[]}
+            onDateChange={setCurrentDate}
+            onViewChange={setCurrentView}
+          />
         </Paper>
       </Stack>
     </Box>
