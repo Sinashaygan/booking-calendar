@@ -79,3 +79,29 @@ export function parseReservationDate(value: string): number | undefined {
 
   return timestamp;
 }
+
+export function isValidReservationDate(value: string): boolean {
+  return parseReservationDate(value) !== undefined;
+}
+
+export function getReservationDurationMs(
+  start: string,
+  end: string,
+): number | undefined {
+  const startTimestamp = parseReservationDate(start);
+  const endTimestamp = parseReservationDate(end);
+
+  if (startTimestamp === undefined || endTimestamp === undefined) {
+    return undefined;
+  }
+
+  return endTimestamp - startTimestamp;
+}
+
+export function isValidTimeRange(start: string, end: string): boolean {
+  const duration = getReservationDurationMs(start, end);
+
+  return duration !== undefined && duration >= MIN_RESERVATION_DURATION_MS;
+}
+
+export const MIN_RESERVATION_DURATION_MINUTES = 15;
