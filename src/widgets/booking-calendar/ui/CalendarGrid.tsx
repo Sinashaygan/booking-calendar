@@ -10,6 +10,7 @@ import FullCalendar from "@fullcalendar/react";
 import faLocale from "@fullcalendar/core/locales/fa";
 
 import type { CalendarView } from "@/entities/calendar/model/types";
+import { isCalendarView } from "@/entities/calendar/lib/calendar-mappers";
 
 type CalendarGridProps = {
   view: CalendarView;
@@ -34,15 +35,15 @@ export function CalendarGrid({
 
   function handleDatesSet(dateInfo: DatesSetArg) {
     const api = dateInfo.view.calendar;
+    const nextDate = api.getDate();
+    const nextView = api.view.type;
 
-    onDateChange(api.getDate());
+    if (date.getTime() !== nextDate.getTime()) {
+      onDateChange(nextDate);
+    }
 
-    if (
-      api.view.type === "dayGridMonth" ||
-      api.view.type === "timeGridWeek" ||
-      api.view.type === "timeGridDay"
-    ) {
-      onViewChange(api.view.type);
+    if (isCalendarView(nextView) && nextView !== view) {
+      onViewChange(nextView);
     }
   }
 

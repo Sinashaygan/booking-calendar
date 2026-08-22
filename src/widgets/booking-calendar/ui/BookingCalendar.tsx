@@ -3,7 +3,7 @@
 import Link from "next/link";
 
 import { Box, Button, Paper, Stack, Typography } from "@mui/material";
-import { CalendarDays, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { CalendarView } from "@/entities/calendar/model/types";
 import { useState } from "react";
 import { CalendarGrid } from "./CalendarGrid";
