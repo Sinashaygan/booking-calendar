@@ -32,12 +32,19 @@ export function useCalendarUrlState() {
   const view = normalizeCalendarView(viewParam);
   const date = parseDateFromUrl(dateParam);
 
-  async function setView(view: CalendarView) {
-    await setViewParam(view);
+  async function setView(nextView: CalendarView) {
+    if (nextView === view) {
+      return;
+    }
+    await setViewParam(nextView);
   }
 
-  async function setDate(date: Date) {
-    await setDateParam(formatDateForUrl(date));
+  async function setDate(nextDate: Date) {
+    if (nextDate === date) {
+      return;
+    }
+
+    await setDateParam(formatDateForUrl(nextDate));
   }
 
   return {
