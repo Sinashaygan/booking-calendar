@@ -34,4 +34,65 @@ export function doTimeRangesOverlap(
   return firstStartTime < secondEndTime && secondStartTime < firstEndTime;
 }
 
+export function hasReservationConflict(
+  candidate: Pick<Reservation, "resourceId" | "start" | "end">,
+  reservations: readonly Reservation[],
+  options: ConflictOptions = {},
+): boolean {
+  return reservations.some((reservation) => {
+    if (options.excludeId === reservation.id) {
+      return false;
+    }
 
+    if (!isActiveReservation(reservation)) {
+      return false;
+    }
+
+    if (reservation.resourceId !== candidate.resourceId) {
+      return false;
+    }
+
+    return doTimeRangesOverlap(
+      candidate.start,
+      candidate.end,
+      reservation.start,
+      reservation.end,
+    );
+  });
+}
+
+export function findReservationConflicts(
+  candidate: Pick<Reservation, "resourceId" | "start" | "end">,
+  reservations: readonly Reservation[],
+  options: ConflictOptions = {},
+): Reservation[] {
+  return reservations.filter((reservation) => {
+    if (options.excludeId === reservation.id) {
+      return false;
+    }
+
+    if (!isActiveReservation(reservation)) {
+      return false;
+    }
+
+    if (reservation.resourceId !== candidate.resourceId) {
+      return false;
+    }
+
+    return doTimeRangesOverlap(
+      candidate.start,
+      candidate.end,
+      reservation.start,
+      reservation.end,
+    );
+  });
+}
+
+export function isReservationDurationValid(
+  start: string,
+  end: string,
+): boolean {
+  const duration = getReservationDurationMs(start, end);
+
+  return duration !== undefined && duration >= 15 * 60 * 1000;
+}
