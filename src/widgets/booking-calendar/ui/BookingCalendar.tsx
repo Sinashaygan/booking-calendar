@@ -1,16 +1,62 @@
 "use client";
 
-import Link from "next/link";
+import { useMemo, useRef } from "react";
 
-import { Box, Button, Paper, Stack, Typography } from "@mui/material";
-import { Plus } from "lucide-react";
-import { CalendarView } from "@/entities/calendar/model/types";
-import { useState } from "react";
+import type FullCalendar from "@fullcalendar/react";
+import { Box, Paper, Stack } from "@mui/material";
+
+import { reservationsToCalendarEvents } from "@/entities/calendar/lib/calendar-mappers";
+import { mockReservations } from "@/entities/reservation/model/mock-reservations";
+import { CalendarToolbar } from "@/features/calendar-navigation/ui/calendar-toolbar";
+import { useCalendarUrlState } from "@/features/calendar-navigation/model/use-calendar-url-state";
 import { CalendarGrid } from "./CalendarGrid";
 
 export function BookingCalendar() {
-  const [currentDate, setCurrentDate] = useState(() => new Date());
-  const [currentView, setCurrentView] = useState<CalendarView>("timeGridWeek");
+  const calendarRef = useRef<FullCalendar | null>(null);
+
+  const { view, date, setView, setDate } = useCalendarUrlState();
+
+  const events = useMemo(
+    () => reservationsToCalendarEvents(mockReservations),
+    [],
+  );
+
+  function handlePrevious() {
+    calendarRef.current?.getApi().prev();
+  }
+
+  function handleNext() {
+    calendarRef.current?.getApi().next();
+  }
+
+  function handleToday() {
+    calendarRef.current?.getApi().today();
+  }
+
+  function handleViewChange(nextView: typeof view) {
+    const api = calendarRef.current?.getApi();
+
+    if (api && api.view.type !== nextView) {
+      api.changeView(nextView);
+    }
+  }
+
+  async function handleDateChange(nextDate: Date) {
+    const api = calendarRef.current?.getApi();
+
+    if (api && api.getDate().getTime() === nextDate.getTime()) {
+      await setDate(nextDate);
+      return;
+    }
+
+    await setDate(nextDate);
+  }
+
+  async function handleCalendarViewChange(nextView: typeof view) {
+    if (nextView !== view) {
+      await setView(nextView);
+    }
+  }
 
   return (
     <Box
@@ -28,38 +74,18 @@ export function BookingCalendar() {
           mx: "auto",
         }}
       >
-        <Stack
-          spacing={2}
-          sx={{
-            flexDirection: { xs: "column", md: "row" },
-            alignItems: { xs: "flex-start", md: "center" },
-            justifyContent: "space-between",
-          }}
-        >
-          <Box>
-            <Typography variant="h4" component="h1" sx={{ fontWeight: 700 }}>
-              تقویم رزروها
-            </Typography>
-
-            <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
-              مدیریت زمان‌بندی منابع و رزروهای مجموعه
-            </Typography>
-          </Box>
-
-          <Button
-            component={Link}
-            href="/calendar"
-            variant="contained"
-            startIcon={<Plus size={18} />}
-          >
-            رزرو جدید
-          </Button>
-        </Stack>
+        <CalendarToolbar
+          currentDate={date}
+          currentView={view}
+          onPrevious={handlePrevious}
+          onNext={handleNext}
+          onToday={handleToday}
+          onViewChange={handleViewChange}
+        />
 
         <Paper
           elevation={0}
           sx={{
-            minHeight: 520,
             overflow: "hidden",
             border: "1px solid",
             borderColor: "divider",
@@ -68,11 +94,12 @@ export function BookingCalendar() {
           }}
         >
           <CalendarGrid
-            view={currentView}
-            date={currentDate}
-            events={[]}
-            onDateChange={setCurrentDate}
-            onViewChange={setCurrentView}
+            calendarRef={calendarRef}
+            view={view}
+            date={date}
+            events={events}
+            onDateChange={handleDateChange}
+            onViewChange={handleCalendarViewChange}
           />
         </Paper>
       </Stack>
