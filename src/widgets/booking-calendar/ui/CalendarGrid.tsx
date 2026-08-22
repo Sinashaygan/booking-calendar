@@ -10,7 +10,6 @@ import FullCalendar from "@fullcalendar/react";
 import faLocale from "@fullcalendar/core/locales/fa";
 
 import type { CalendarView } from "@/entities/calendar/model/types";
-import { isCalendarView } from "@/entities/calendar/lib/calendar-mappers";
 
 type CalendarGridProps = {
   view: CalendarView;
@@ -18,6 +17,7 @@ type CalendarGridProps = {
   events: EventInput[];
   onDateChange: (date: Date) => void;
   onViewChange: (view: CalendarView) => void;
+  calendarRef: React.RefObject<FullCalendar | null>;
 };
 
 export function CalendarGrid({
@@ -26,41 +26,20 @@ export function CalendarGrid({
   events,
   onDateChange,
   onViewChange,
+  calendarRef,
 }: CalendarGridProps) {
-  const calendarRef = useRef<FullCalendar | null>(null);
-
-  function getCalendarApi(): CalendarApi | null {
-    return calendarRef.current?.getApi() ?? null;
-  }
-
   function handleDatesSet(dateInfo: DatesSetArg) {
     const api = dateInfo.view.calendar;
-    const nextDate = api.getDate();
-    const nextView = api.view.type;
 
-    if (date.getTime() !== nextDate.getTime()) {
-      onDateChange(nextDate);
+    onDateChange(api.getDate());
+
+    if (
+      api.view.type === "dayGridMonth" ||
+      api.view.type === "timeGridWeek" ||
+      api.view.type === "timeGridDay"
+    ) {
+      onViewChange(api.view.type);
     }
-
-    if (isCalendarView(nextView) && nextView !== view) {
-      onViewChange(nextView);
-    }
-  }
-
-  function handlePrevious() {
-    getCalendarApi()?.prev();
-  }
-
-  function handleNext() {
-    getCalendarApi()?.next();
-  }
-
-  function handleToday() {
-    getCalendarApi()?.today();
-  }
-
-  function handleViewChange(nextView: CalendarView) {
-    getCalendarApi()?.changeView(nextView);
   }
 
   return (
@@ -87,9 +66,3 @@ export function CalendarGrid({
     />
   );
 }
-
-export const calendarNavigation = {
-  previous: "previous",
-  next: "next",
-  today: "today",
-};
