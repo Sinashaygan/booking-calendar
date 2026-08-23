@@ -43,14 +43,12 @@ const resources = [
   { id: "room-c", label: "اتاق C" },
 ] as const;
 
-
 function getDefaultReservationValues(): Partial<ReservationInput> {
   const now = new Date();
 
   const start = new Date(now);
   start.setSeconds(0, 0);
 
-  // رُند کردن زمان به نزدیک‌ترین ۱۵ دقیقه
   const roundedMinutes = Math.ceil(start.getMinutes() / 15) * 15;
 
   if (roundedMinutes === 60) {
@@ -83,7 +81,6 @@ function getDefaultReservationValues(): Partial<ReservationInput> {
   };
 }
 
-
 export function BookingCalendar() {
   const calendarRef = useRef<FullCalendar | null>(null);
 
@@ -91,13 +88,14 @@ export function BookingCalendar() {
   const [selectedReservationId, setSelectedReservationId] = useState<
     string | null
   >(null);
-  const [dialog, setDialog] = useState<"edit" | "delete" | "create" | null>(null);
+  const [dialog, setDialog] = useState<"edit" | "delete" | "create" | null>(
+    null,
+  );
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const updateReservation = useUpdateReservation();
   const deleteReservation = useDeleteReservation();
   const createReservation = useCreateReservation();
-
 
   const {
     data: reservations,
@@ -123,6 +121,13 @@ export function BookingCalendar() {
     [selectedReservation],
   );
 
+  function openCreateDrawer() {
+    setSubmitError(null);
+    setDeleteError(null);
+    setSelectedReservationId(null);
+    setDialog("create");
+  }
+
   function openReservationDialog(id: string) {
     setSelectedReservationId(id);
     setSubmitError(null);
@@ -131,7 +136,11 @@ export function BookingCalendar() {
   }
 
   function closeDialog() {
-    if (updateReservation.isPending || deleteReservation.isPending) {
+    if (
+      createReservation.isPending ||
+      updateReservation.isPending ||
+      deleteReservation.isPending
+    ) {
       return;
     }
     setDialog(null);
