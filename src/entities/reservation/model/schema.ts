@@ -73,7 +73,7 @@ export const reservationUpdateSchema = reservationInputSchema
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Both start and end must be provided if one is updated",
-        path: ["start"], // یا هر دو فیلد
+        path: ["start"],
       });
     }
   });
