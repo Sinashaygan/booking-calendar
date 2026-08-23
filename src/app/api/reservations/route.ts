@@ -6,9 +6,6 @@ import {
 import { hasReservationConflict } from "@/entities/reservation/model/conflict";
 import { reservationInputSchema } from "@/entities/reservation/model/schema";
 
-// export const dynamic = "force-dynamic";
-// export const revalidate = 0;
-
 function errorResponse(message: string, status: number) {
   return Response.json({ message }, { status });
 }

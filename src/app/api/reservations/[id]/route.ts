@@ -8,9 +8,6 @@ import { hasReservationConflict } from "@/entities/reservation/model/conflict";
 import { reservationUpdateSchema } from "@/entities/reservation/model/schema";
 import type { Reservation } from "@/entities/reservation/model/types";
 
-// export const dynamic = "force-dynamic";
-// export const revalidate = 0;
-
 type RouteContext = {
   params: Promise<{ id: string }>;
 };
