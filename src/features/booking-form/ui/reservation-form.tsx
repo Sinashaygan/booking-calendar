@@ -2,7 +2,7 @@ import { ReservationInput } from "@/entities/reservation/model/types";
 import { BookingFormValues } from "../model/form-schema";
 import { Controller, useForm } from "react-hook-form";
 import { bookingFormResolver } from "../model/resolver";
-import { Stack, TextField, MenuItem } from "@mui/material";
+import { Stack, TextField, MenuItem, Button } from "@mui/material";
 
 type ResourceOption = {
   id: string;
@@ -116,6 +116,40 @@ export function ReservationForm({
           </TextField>
         )}
       />
+
+      <Controller
+        name="start"
+        control={control}
+        render={({ field }) => (
+          <TextField
+            {...field}
+            label="شروع"
+            placeholder="2026-08-22T08:30:00"
+            error={Boolean(errors.start)}
+            helperText={errors.start?.message}
+            fullWidth
+          />
+        )}
+      />
+
+      <Controller
+        name="end"
+        control={control}
+        render={({ field }) => (
+          <TextField
+            {...field}
+            label="پایان"
+            placeholder="2026-08-22T09:00:00"
+            error={Boolean(errors.end)}
+            helperText={errors.end?.message}
+            fullWidth
+          />
+        )}
+      />
+
+      <Button type="submit" variant="contained" disabled={isSubmitting}>
+        ثبت رزرو
+      </Button>
     </Stack>
   );
 }
