@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -38,6 +38,30 @@ export function Providers({
         },
       }),
   );
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function startMockWorker() {
+      try {
+        const { worker } = await import("./mocks/browser");
+
+        if (isMounted) {
+          await worker.start({
+            onUnhandledRequest: "bypass",
+          });
+        }
+      } catch (error) {
+        console.error("[MSW] Failed to start browser worker", error);
+      }
+    }
+
+    void startMockWorker();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
