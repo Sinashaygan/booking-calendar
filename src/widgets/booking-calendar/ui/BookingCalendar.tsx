@@ -3,13 +3,14 @@
 import { useMemo, useRef } from "react";
 
 import type FullCalendar from "@fullcalendar/react";
-import { Box, Paper, Stack } from "@mui/material";
+import { Alert, Box, LinearProgress, Paper, Stack } from "@mui/material";
 
 import { reservationsToCalendarEvents } from "@/entities/calendar/lib/calendar-mappers";
-import { CalendarToolbar } from "@/features/calendar-navigation/ui/calendar-toolbar";
 import { useCalendarUrlState } from "@/features/calendar-navigation/model/use-calendar-url-state";
-import { CalendarGrid } from "./CalendarGrid";
+import { CalendarToolbar } from "@/features/calendar-navigation/ui/calendar-toolbar";
 import { useReservations } from "@/features/reservation-mutations/api/use-reservations";
+
+import { CalendarGrid } from "./CalendarGrid";
 
 export function BookingCalendar() {
   const calendarRef = useRef<FullCalendar | null>(null);
@@ -18,7 +19,7 @@ export function BookingCalendar() {
 
   const {
     data: reservations,
-    isLoading,
+    isPending,
     isFetching,
     isError,
     error,
@@ -26,7 +27,7 @@ export function BookingCalendar() {
 
   const events = useMemo(
     () => reservationsToCalendarEvents(reservations ?? []),
-    [],
+    [reservations],
   );
 
   function handlePrevious() {
@@ -91,9 +92,19 @@ export function BookingCalendar() {
           onViewChange={handleViewChange}
         />
 
+        {isError && (
+          <Alert severity="error">
+            {error instanceof Error
+              ? error.message
+              : "دریافت رزروها با خطا مواجه شد."}
+          </Alert>
+        )}
+
         <Paper
           elevation={0}
+          aria-busy={isFetching}
           sx={{
+            position: "relative",
             overflow: "hidden",
             border: "1px solid",
             borderColor: "divider",
@@ -101,14 +112,29 @@ export function BookingCalendar() {
             p: { xs: 1, md: 2 },
           }}
         >
-          <CalendarGrid
-            calendarRef={calendarRef}
-            view={view}
-            date={date}
-            events={events}
-            onDateChange={handleDateChange}
-            onViewChange={handleCalendarViewChange}
-          />
+          {isFetching && (
+            <LinearProgress
+              aria-label="در حال دریافت رزروها"
+              sx={{
+                position: "absolute",
+                top: 0,
+                right: 0,
+                left: 0,
+                zIndex: 1,
+              }}
+            />
+          )}
+
+          {!isPending && (
+            <CalendarGrid
+              calendarRef={calendarRef}
+              view={view}
+              date={date}
+              events={events}
+              onDateChange={handleDateChange}
+              onViewChange={handleCalendarViewChange}
+            />
+          )}
         </Paper>
       </Stack>
     </Box>
