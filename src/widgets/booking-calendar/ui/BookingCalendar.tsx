@@ -3,6 +3,11 @@
 import { useMemo, useRef, useState } from "react";
 
 import type FullCalendar from "@fullcalendar/react";
+import AddIcon from "@mui/icons-material/Add";
+import CloseIcon from "@mui/icons-material/Close";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import EventIcon from "@mui/icons-material/Event";
 import {
   Alert,
   Box,
@@ -11,6 +16,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Drawer,
   IconButton,
   LinearProgress,
   Paper,
@@ -18,22 +24,17 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
-import CloseIcon from "@mui/icons-material/Close";
 
 import { reservationsToCalendarEvents } from "@/entities/calendar/lib/calendar-mappers";
+import type { ReservationInput } from "@/entities/reservation/model/types";
 import { useCalendarUrlState } from "@/features/calendar-navigation/model/use-calendar-url-state";
 import { CalendarToolbar } from "@/features/calendar-navigation/ui/calendar-toolbar";
+import { ReservationForm } from "@/features/booking-form/ui/reservation-form";
+import { useCreateReservation } from "@/features/reservation-mutations/api/use-create-reservation";
+import { useDeleteReservation } from "@/features/reservation-mutations/api/use-delete-reservation";
 import { useReservations } from "@/features/reservation-mutations/api/use-reservations";
 import { useUpdateReservation } from "@/features/reservation-mutations/api/use-update-reservation";
-import { useDeleteReservation } from "@/features/reservation-mutations/api/use-delete-reservation";
-import { ReservationForm } from "@/features/booking-form/ui/reservation-form";
-import type { ReservationInput } from "@/entities/reservation/model/types";
 import { getReservationMutationErrorMessage } from "@/features/reservation-mutations/model/error-message";
-import EditIcon from "@mui/icons-material/Edit";
-import EventIcon from "@mui/icons-material/Event";
-
-import { useCreateReservation } from "@/features/reservation-mutations/api/use-create-reservation";
 
 import { CalendarGrid } from "./CalendarGrid";
 
@@ -93,6 +94,7 @@ export function BookingCalendar() {
   );
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+
   const updateReservation = useUpdateReservation();
   const deleteReservation = useDeleteReservation();
   const createReservation = useCreateReservation();
@@ -109,6 +111,7 @@ export function BookingCalendar() {
     () => reservationsToCalendarEvents(reservations ?? []),
     [reservations],
   );
+
   const selectedReservation = useMemo(
     () =>
       reservations?.find(
@@ -116,10 +119,13 @@ export function BookingCalendar() {
       ) ?? null,
     [reservations, selectedReservationId],
   );
+
   const editDefaultValues = useMemo<Partial<ReservationInput> | undefined>(
     () => selectedReservation ?? undefined,
     [selectedReservation],
   );
+
+  const createDefaultValues = useMemo(() => getDefaultReservationValues(), []);
 
   function openCreateDrawer() {
     setSubmitError(null);
@@ -143,15 +149,29 @@ export function BookingCalendar() {
     ) {
       return;
     }
+
     setDialog(null);
     setSelectedReservationId(null);
     setSubmitError(null);
     setDeleteError(null);
   }
 
+  async function handleCreate(input: ReservationInput) {
+    setSubmitError(null);
+
+    try {
+      await createReservation.mutateAsync(input);
+      closeDialog();
+    } catch (error: unknown) {
+      setSubmitError(getReservationMutationErrorMessage(error));
+    }
+  }
+
   async function handleUpdate(input: ReservationInput) {
     if (!selectedReservation) return;
+
     setSubmitError(null);
+
     try {
       await updateReservation.mutateAsync({
         id: selectedReservation.id,
@@ -165,7 +185,9 @@ export function BookingCalendar() {
 
   async function handleDelete() {
     if (!selectedReservation) return;
+
     setDeleteError(null);
+
     try {
       await deleteReservation.mutateAsync(selectedReservation.id);
       closeDialog();
@@ -236,6 +258,19 @@ export function BookingCalendar() {
           onViewChange={handleViewChange}
         />
 
+        <Stack
+          direction="row"
+          sx={{ direction: "rtl", justifyContent: "flex-start" }}
+        >
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={openCreateDrawer}
+          >
+            افزودن رزرو
+          </Button>
+        </Stack>
+
         {isError && (
           <Alert severity="error">
             {error instanceof Error
@@ -282,6 +317,56 @@ export function BookingCalendar() {
           )}
         </Paper>
       </Stack>
+
+      <Drawer
+        anchor="right"
+        open={dialog === "create"}
+        onClose={closeDialog}
+        slotProps={{
+          paper: {
+            sx: {
+              width: { xs: "100%", sm: 520 },
+            },
+          },
+        }}
+      >
+        <Box sx={{ p: 3, height: "100%", overflowY: "auto" }}>
+          <Stack spacing={3}>
+            <Stack
+              direction="row"
+              sx={{
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+                <EventIcon fontSize="small" />
+                <Typography variant="h6">افزودن رزرو</Typography>
+              </Stack>
+
+              <Tooltip title="بستن">
+                <IconButton
+                  onClick={closeDialog}
+                  disabled={createReservation.isPending}
+                >
+                  <CloseIcon />
+                </IconButton>
+              </Tooltip>
+            </Stack>
+
+            {submitError && <Alert severity="error">{submitError}</Alert>}
+
+            <ReservationForm
+              resources={resources}
+              defaultValues={createDefaultValues}
+              isPending={createReservation.isPending}
+              submitLabel="ثبت رزرو"
+              onSubmit={handleCreate}
+              onCancel={closeDialog}
+            />
+          </Stack>
+        </Box>
+      </Drawer>
 
       <Dialog
         open={dialog === "edit" && Boolean(selectedReservation)}
