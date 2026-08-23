@@ -1,4 +1,8 @@
-import { Reservation, ReservationInput, ReservationUpdateInput } from "../model/types";
+import type {
+  Reservation,
+  ReservationInput,
+  ReservationUpdateInput,
+} from "../model/types";
 
 export interface ReservationRepository {
   getAll(): Promise<Reservation[]>;
