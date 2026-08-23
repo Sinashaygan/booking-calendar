@@ -8,7 +8,7 @@ export class HttpError extends Error {
   }
 }
 
-type HttpOptions = RequestInit & {
+type HttpOptions = Omit<RequestInit, "body"> & {
   body?: unknown;
 };
 
@@ -40,3 +40,31 @@ async function request<T>(url: string, options: HttpOptions = {}): Promise<T> {
 
   return result as T;
 }
+
+export const httpClient = {
+  get<T>(url: string): Promise<T> {
+    return request<T>(url, {
+      method: "GET",
+    });
+  },
+
+  post<T>(url: string, body: unknown): Promise<T> {
+    return request<T>(url, {
+      method: "POST",
+      body,
+    });
+  },
+
+  patch<T>(url: string, body: unknown): Promise<T> {
+    return request<T>(url, {
+      method: "PATCH",
+      body,
+    });
+  },
+
+  delete<T>(url: string): Promise<T> {
+    return request<T>(url, {
+      method: "DELETE",
+    });
+  },
+};
