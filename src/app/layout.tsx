@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 import { siteConfig } from "@/shared/config/site";
-import { Providers } from "./Providers";
+import { Providers } from "./providers";
 
 
 export const metadata: Metadata = {
