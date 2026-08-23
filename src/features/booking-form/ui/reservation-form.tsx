@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Alert, Button, MenuItem, Stack, TextField } from "@mui/material";
 
@@ -18,7 +19,9 @@ type ReservationFormProps = {
   defaultValues?: Partial<BookingFormValues>;
   isPending?: boolean;
   submitError?: string | null;
+  submitLabel?: string;
   onSubmit: (value: ReservationInput) => void | Promise<void>;
+  onCancel?: () => void;
 };
 
 const defaultFormValues: BookingFormValues = {
@@ -35,12 +38,15 @@ export function ReservationForm({
   defaultValues,
   isPending = false,
   submitError,
+  submitLabel = "ثبت رزرو",
   onSubmit,
+  onCancel,
 }: ReservationFormProps) {
   const {
     control,
     handleSubmit,
     formState: { errors, isSubmitting },
+    reset,
   } = useForm<BookingFormValues>({
     resolver: bookingFormResolver,
     defaultValues: {
@@ -48,6 +54,13 @@ export function ReservationForm({
       ...defaultValues,
     },
   });
+
+  useEffect(() => {
+    reset({
+      ...defaultFormValues,
+      ...defaultValues,
+    });
+  }, [defaultValues, reset]);
 
   const isSubmitDisabled = isSubmitting || isPending;
 
@@ -72,6 +85,7 @@ export function ReservationForm({
         render={({ field }) => (
           <TextField
             {...field}
+            disabled={isSubmitDisabled}
             label="عنوان رزرو"
             error={Boolean(errors.title)}
             helperText={errors.title?.message}
@@ -86,6 +100,7 @@ export function ReservationForm({
         render={({ field }) => (
           <TextField
             {...field}
+            disabled={isSubmitDisabled}
             label="نام مشتری"
             error={Boolean(errors.customerName)}
             helperText={errors.customerName?.message}
@@ -100,6 +115,7 @@ export function ReservationForm({
         render={({ field }) => (
           <TextField
             {...field}
+            disabled={isSubmitDisabled}
             select
             label="منبع"
             error={Boolean(errors.resourceId)}
@@ -121,6 +137,7 @@ export function ReservationForm({
         render={({ field }) => (
           <TextField
             {...field}
+            disabled={isSubmitDisabled}
             select
             label="وضعیت"
             error={Boolean(errors.status)}
@@ -140,6 +157,7 @@ export function ReservationForm({
         render={({ field }) => (
           <TextField
             {...field}
+            disabled={isSubmitDisabled}
             label="شروع"
             placeholder="2026-08-22T08:30:00"
             error={Boolean(errors.start)}
@@ -155,6 +173,7 @@ export function ReservationForm({
         render={({ field }) => (
           <TextField
             {...field}
+            disabled={isSubmitDisabled}
             label="پایان"
             placeholder="2026-08-22T09:00:00"
             error={Boolean(errors.end)}
@@ -164,9 +183,21 @@ export function ReservationForm({
         )}
       />
 
-      <Button type="submit" variant="contained" disabled={isSubmitDisabled}>
-        {isSubmitDisabled ? "در حال ثبت..." : "ثبت رزرو"}
-      </Button>
+      <Stack direction="row" spacing={1}>
+        {onCancel && (
+          <Button
+            type="button"
+            variant="outlined"
+            onClick={onCancel}
+            disabled={isSubmitDisabled}
+          >
+            انصراف
+          </Button>
+        )}
+        <Button type="submit" variant="contained" disabled={isSubmitDisabled}>
+          {isSubmitDisabled ? "در حال ذخیره..." : submitLabel}
+        </Button>
+      </Stack>
     </Stack>
   );
 }
