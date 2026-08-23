@@ -12,6 +12,13 @@ type ApiResponse<T> = {
 const RESERVATIONS_URL = "/api/reservations";
 
 export const reservationApi = {
+    async getAll():Promise<Reservation[]>{
+        const response =
+          await httpClient.get<ApiResponse<Reservation[]>>(RESERVATIONS_URL);
+
+        return response.data;
+    },
+
   async getById(id: string): Promise<Reservation> {
     const response = await httpClient.get<ApiResponse<Reservation>>(
       `${RESERVATIONS_URL}/${id}`,
