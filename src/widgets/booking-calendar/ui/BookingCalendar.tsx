@@ -31,6 +31,10 @@ import { ReservationForm } from "@/features/booking-form/ui/reservation-form";
 import type { ReservationInput } from "@/entities/reservation/model/types";
 import { getReservationMutationErrorMessage } from "@/features/reservation-mutations/model/error-message";
 import EditIcon from "@mui/icons-material/Edit";
+import EventIcon from "@mui/icons-material/Event";
+
+import { useCreateReservation } from "@/features/reservation-mutations/api/use-create-reservation";
+
 
 import { CalendarGrid } from "./CalendarGrid";
 
@@ -47,11 +51,13 @@ export function BookingCalendar() {
   const [selectedReservationId, setSelectedReservationId] = useState<
     string | null
   >(null);
-  const [dialog, setDialog] = useState<"edit" | "delete" | null>(null);
+  const [dialog, setDialog] = useState<"edit" | "delete" | "create" | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const updateReservation = useUpdateReservation();
   const deleteReservation = useDeleteReservation();
+  const createReservation = useCreateReservation();
+
 
   const {
     data: reservations,
