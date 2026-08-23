@@ -1,5 +1,5 @@
 import { reservationApi } from "./reservation-api";
-import { ReservationRepository } from "./reservation-repository";
+import type { ReservationRepository } from "./reservation-repository";
 
 export const apiReservationRepository: ReservationRepository = {
   getAll: reservationApi.getAll,
