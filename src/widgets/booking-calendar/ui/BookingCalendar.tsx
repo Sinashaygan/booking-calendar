@@ -35,7 +35,6 @@ import EventIcon from "@mui/icons-material/Event";
 
 import { useCreateReservation } from "@/features/reservation-mutations/api/use-create-reservation";
 
-
 import { CalendarGrid } from "./CalendarGrid";
 
 const resources = [
@@ -43,6 +42,47 @@ const resources = [
   { id: "room-b", label: "اتاق B" },
   { id: "room-c", label: "اتاق C" },
 ] as const;
+
+
+function getDefaultReservationValues(): Partial<ReservationInput> {
+  const now = new Date();
+
+  const start = new Date(now);
+  start.setSeconds(0, 0);
+
+  // رُند کردن زمان به نزدیک‌ترین ۱۵ دقیقه
+  const roundedMinutes = Math.ceil(start.getMinutes() / 15) * 15;
+
+  if (roundedMinutes === 60) {
+    start.setHours(start.getHours() + 1);
+    start.setMinutes(0);
+  } else {
+    start.setMinutes(roundedMinutes);
+  }
+
+  const end = new Date(start);
+  end.setMinutes(end.getMinutes() + 30);
+
+  function toLocalDateTime(value: Date): string {
+    const year = value.getFullYear();
+    const month = String(value.getMonth() + 1).padStart(2, "0");
+    const day = String(value.getDate()).padStart(2, "0");
+    const hours = String(value.getHours()).padStart(2, "0");
+    const minutes = String(value.getMinutes()).padStart(2, "0");
+
+    return `${year}-${month}-${day}T${hours}:${minutes}:00`;
+  }
+
+  return {
+    title: "",
+    customerName: "",
+    resourceId: resources[0]?.id ?? "",
+    start: toLocalDateTime(start),
+    end: toLocalDateTime(end),
+    status: "pending",
+  };
+}
+
 
 export function BookingCalendar() {
   const calendarRef = useRef<FullCalendar | null>(null);
