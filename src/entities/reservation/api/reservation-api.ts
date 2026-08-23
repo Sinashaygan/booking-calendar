@@ -1,5 +1,5 @@
 import { httpClient } from "@/shared/api/http-client";
-import {
+import type {
   Reservation,
   ReservationInput,
   ReservationUpdateInput,
