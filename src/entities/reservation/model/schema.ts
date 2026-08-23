@@ -65,3 +65,17 @@ export function safeParseReservation(
 export function validateReservation(value: unknown): Reservation {
   return reservationSchema.parse(value);
 }
+
+export const reservationUpdateSchema = reservationInputSchema
+  .partial()
+  .superRefine((val, ctx) => {
+    if ((val.start && !val.end) || (!val.start && val.end)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Both start and end must be provided if one is updated",
+        path: ["start"], // یا هر دو فیلد
+      });
+    }
+  });
+
+export type ReservationUpdateInput = z.infer<typeof reservationUpdateSchema>;
