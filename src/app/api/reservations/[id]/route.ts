@@ -74,5 +74,5 @@ export async function DELETE(_request: Request, { params }: RouteContext) {
     return errorResponse("Reservation not found", 404);
   }
 
-  return new Response(null, { status: 204 });
+  return Response.json({ data: null }, { status: 200 });
 }
