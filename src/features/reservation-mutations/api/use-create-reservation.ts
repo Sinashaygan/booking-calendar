@@ -12,10 +12,9 @@ export function useCreateReservation() {
   return useMutation({
     mutationFn: (input: ReservationInput) =>
       apiReservationRepository.create(input),
-
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: reservationKeys.list(),
+        queryKey: reservationKeys.lists(),
       });
     },
   });
