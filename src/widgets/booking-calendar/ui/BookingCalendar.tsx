@@ -6,18 +6,26 @@ import type FullCalendar from "@fullcalendar/react";
 import { Box, Paper, Stack } from "@mui/material";
 
 import { reservationsToCalendarEvents } from "@/entities/calendar/lib/calendar-mappers";
-import { mockReservations } from "@/entities/reservation/model/mock-reservations";
 import { CalendarToolbar } from "@/features/calendar-navigation/ui/calendar-toolbar";
 import { useCalendarUrlState } from "@/features/calendar-navigation/model/use-calendar-url-state";
 import { CalendarGrid } from "./CalendarGrid";
+import { useReservations } from "@/features/reservation-mutations/api/use-reservations";
 
 export function BookingCalendar() {
   const calendarRef = useRef<FullCalendar | null>(null);
 
   const { view, date, setView, setDate } = useCalendarUrlState();
 
+  const {
+    data: reservations,
+    isLoading,
+    isFetching,
+    isError,
+    error,
+  } = useReservations();
+
   const events = useMemo(
-    () => reservationsToCalendarEvents(mockReservations),
+    () => reservationsToCalendarEvents(reservations ?? []),
     [],
   );
 
