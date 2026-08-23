@@ -136,6 +136,6 @@ export const handlers = [
       return errorResponse("Reservation not found", 404);
     }
 
-    return new HttpResponse(null, { status: 204 });
+    return HttpResponse.json({ data: null }, { status: 200 });
   }),
 ];

@@ -8,9 +8,6 @@ import { hasReservationConflict } from "@/entities/reservation/model/conflict";
 import { reservationUpdateSchema } from "@/entities/reservation/model/schema";
 import type { Reservation } from "@/entities/reservation/model/types";
 
-// export const dynamic = "force-dynamic";
-// export const revalidate = 0;
-
 type RouteContext = {
   params: Promise<{ id: string }>;
 };
@@ -77,5 +74,5 @@ export async function DELETE(_request: Request, { params }: RouteContext) {
     return errorResponse("Reservation not found", 404);
   }
 
-  return new Response(null, { status: 204 });
+  return Response.json({ data: null }, { status: 200 });
 }

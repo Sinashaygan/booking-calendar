@@ -254,7 +254,7 @@ describe("reservation Next.js route handlers", () => {
       }),
       routeContext("reservation-1"),
     );
-    expect(deleted.status).toBe(204);
+    expect(deleted.status).toBe(200);
     expect(
       await getReservationRoute(
         new Request("http://localhost/api/reservations/reservation-1"),

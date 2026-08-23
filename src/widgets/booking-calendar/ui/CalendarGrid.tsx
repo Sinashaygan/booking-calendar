@@ -1,8 +1,10 @@
 "use client";
 
-import { useRef } from "react";
-
-import type { CalendarApi, DatesSetArg, EventInput } from "@fullcalendar/core";
+import type {
+  DatesSetArg,
+  EventClickArg,
+  EventInput,
+} from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -17,6 +19,7 @@ type CalendarGridProps = {
   events: EventInput[];
   onDateChange: (date: Date) => void;
   onViewChange: (view: CalendarView) => void;
+  onReservationClick: (id: string) => void;
   calendarRef: React.RefObject<FullCalendar | null>;
 };
 
@@ -26,6 +29,7 @@ export function CalendarGrid({
   events,
   onDateChange,
   onViewChange,
+  onReservationClick,
   calendarRef,
 }: CalendarGridProps) {
   function handleDatesSet(dateInfo: DatesSetArg) {
@@ -42,6 +46,10 @@ export function CalendarGrid({
     }
   }
 
+  function handleEventClick(eventInfo: EventClickArg) {
+    onReservationClick(eventInfo.event.id);
+  }
+
   return (
     <FullCalendar
       ref={calendarRef}
@@ -54,6 +62,7 @@ export function CalendarGrid({
       initialDate={date}
       events={events}
       datesSet={handleDatesSet}
+      eventClick={handleEventClick}
       height="auto"
       nowIndicator
       dayMaxEvents

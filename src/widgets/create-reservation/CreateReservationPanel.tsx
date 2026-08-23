@@ -1,30 +1,37 @@
 "use client";
 
+import { useState } from "react";
+
+import type { ReservationInput } from "@/entities/reservation/model/types";
 import { ReservationForm } from "@/features/booking-form/ui/reservation-form";
-import { prepareCreateReservation } from "@/features/reservation-mutations/model/reservation-mutations";
-import { mockReservations } from "@/entities/reservation/model/mock-reservations";
+import { useCreateReservation } from "@/features/reservation-mutations/api/use-create-reservation";
+import { getReservationMutationErrorMessage } from "@/features/reservation-mutations/model/error-message";
 
 const resources = [
   { id: "room-a", label: "اتاق A" },
   { id: "room-b", label: "اتاق B" },
-];
+] as const;
 
 export function CreateReservationPanel() {
-  function handleSubmit(
-    input: Parameters<typeof prepareCreateReservation>[0]["input"],
-  ) {
-    const result = prepareCreateReservation({
-      input,
-      reservations: mockReservations,
-    });
+  const createReservation = useCreateReservation();
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
-    if (!result.ok) {
-      console.error(result.errors, result.conflicts);
-      return;
+  async function handleSubmit(input: ReservationInput): Promise<void> {
+    setSubmitError(null);
+
+    try {
+      await createReservation.mutateAsync(input);
+    } catch (error: unknown) {
+      setSubmitError(getReservationMutationErrorMessage(error));
     }
-
-    console.log("Ready for repository/API:", result.value);
   }
 
-  return <ReservationForm resources={resources} onSubmit={handleSubmit} />;
+  return (
+    <ReservationForm
+      resources={resources}
+      isPending={createReservation.isPending}
+      submitError={submitError}
+      onSubmit={handleSubmit}
+    />
+  );
 }

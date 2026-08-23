@@ -1,6 +1,7 @@
 "use client";
 
-import { useQueryState, parseAsString } from "nuqs";
+import { useCallback } from "react";
+import { parseAsString, useQueryState } from "nuqs";
 
 import {
   CALENDAR_VIEWS,
@@ -32,20 +33,29 @@ export function useCalendarUrlState() {
   const view = normalizeCalendarView(viewParam);
   const date = parseDateFromUrl(dateParam);
 
-  async function setView(nextView: CalendarView) {
-    if (nextView === view) {
-      return;
-    }
-    await setViewParam(nextView);
-  }
+  const setView = useCallback(
+    async (nextView: CalendarView) => {
+      if (nextView === viewParam) {
+        return;
+      }
 
-  async function setDate(nextDate: Date) {
-    if (nextDate === date) {
-      return;
-    }
+      await setViewParam(nextView);
+    },
+    [setViewParam, viewParam],
+  );
 
-    await setDateParam(formatDateForUrl(nextDate));
-  }
+  const setDate = useCallback(
+    async (nextDate: Date) => {
+      const nextDateParam = formatDateForUrl(nextDate);
+
+      if (nextDateParam === dateParam) {
+        return;
+      }
+
+      await setDateParam(nextDateParam);
+    },
+    [dateParam, setDateParam],
+  );
 
   return {
     view,
