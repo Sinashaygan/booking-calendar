@@ -113,7 +113,9 @@ export const handlers = [
       id,
     };
 
-    const conflict = hasReservationConflict(candidate, getReservations(), {excludeId: id});
+    const conflict = hasReservationConflict(candidate, getReservations(), {
+      excludeId: id,
+    });
 
     if (conflict) {
       return errorResponse(
