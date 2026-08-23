@@ -1,8 +1,12 @@
-import { ReservationInput } from "@/entities/reservation/model/types";
-import { BookingFormValues } from "../model/form-schema";
+"use client";
+
 import { Controller, useForm } from "react-hook-form";
+import { Alert, Button, MenuItem, Stack, TextField } from "@mui/material";
+
+import type { ReservationInput } from "@/entities/reservation/model/types";
+
+import type { BookingFormValues } from "../model/form-schema";
 import { bookingFormResolver } from "../model/resolver";
-import { Stack, TextField, MenuItem, Button } from "@mui/material";
 
 type ResourceOption = {
   id: string;
@@ -12,7 +16,9 @@ type ResourceOption = {
 type ReservationFormProps = {
   resources: readonly ResourceOption[];
   defaultValues?: Partial<BookingFormValues>;
-  onSubmit: (value: ReservationInput) => void;
+  isPending?: boolean;
+  submitError?: string | null;
+  onSubmit: (value: ReservationInput) => void | Promise<void>;
 };
 
 const defaultFormValues: BookingFormValues = {
@@ -27,6 +33,8 @@ const defaultFormValues: BookingFormValues = {
 export function ReservationForm({
   resources,
   defaultValues,
+  isPending = false,
+  submitError,
   onSubmit,
 }: ReservationFormProps) {
   const {
@@ -41,6 +49,8 @@ export function ReservationForm({
     },
   });
 
+  const isSubmitDisabled = isSubmitting || isPending;
+
   return (
     <Stack
       component="form"
@@ -48,7 +58,14 @@ export function ReservationForm({
       onSubmit={handleSubmit(onSubmit)}
       dir="rtl"
       sx={{ maxWidth: 520 }}
+      noValidate
     >
+      {submitError && (
+        <Alert severity="error" role="alert">
+          {submitError}
+        </Alert>
+      )}
+
       <Controller
         name="title"
         control={control}
@@ -147,8 +164,8 @@ export function ReservationForm({
         )}
       />
 
-      <Button type="submit" variant="contained" disabled={isSubmitting}>
-        ثبت رزرو
+      <Button type="submit" variant="contained" disabled={isSubmitDisabled}>
+        {isSubmitDisabled ? "در حال ثبت..." : "ثبت رزرو"}
       </Button>
     </Stack>
   );
