@@ -9,17 +9,19 @@ import type {
 let reservations: Reservation[] = structuredClone(mockReservations);
 
 export function getReservations(): Reservation[] {
-  return [...reservations];
+  return reservations.map((reservation) => ({ ...reservation }));
 }
 
 export function getReservationById(id: string): Reservation | undefined {
-  return reservations.find((reservation) => reservation.id === id);
+  const reservation = reservations.find((item) => item.id === id);
+
+  return reservation ? { ...reservation } : undefined;
 }
 
 export function insertReservation(reservation: Reservation): Reservation {
   reservations = [...reservations, reservation];
 
-  return reservation;
+  return { ...reservation };
 }
 
 export function updateReservation(
@@ -42,7 +44,7 @@ export function updateReservation(
     currentIndex === index ? updatedReservation : reservation,
   );
 
-  return updatedReservation;
+  return { ...updatedReservation };
 }
 
 export function deleteReservation(id: string): boolean {

@@ -36,9 +36,7 @@ function errorResponse(message: string, status: number) {
 
 export const handlers = [
   http.get(BASE_URL, () => {
-    return HttpResponse.json({
-      data: getReservations(),
-    });
+    return HttpResponse.json(getReservations());
   }),
 
   http.get(`${BASE_URL}/:id`, ({ params }) => {
@@ -49,9 +47,7 @@ export const handlers = [
       return errorResponse("Reservation not found", 404);
     }
 
-    return HttpResponse.json({
-      data: reservation,
-    });
+    return HttpResponse.json(reservation);
   }),
 
   http.post(BASE_URL, async ({ request }) => {
@@ -74,13 +70,11 @@ export const handlers = [
       );
     }
 
-    const reservation = createReservationRecord(input);
-
-    insertReservation(reservation);
+    const reservation = insertReservation(createReservationRecord(input));
 
     return HttpResponse.json(
       {
-        data: reservation,
+        ...reservation,
       },
       {
         status: 201,
@@ -130,9 +124,7 @@ export const handlers = [
       return errorResponse("Reservation not found", 404);
     }
 
-    return HttpResponse.json({
-      data: updated,
-    });
+    return HttpResponse.json(updated);
   }),
 
   http.delete(`${BASE_URL}/:id`, ({ params }) => {
@@ -144,8 +136,6 @@ export const handlers = [
       return errorResponse("Reservation not found", 404);
     }
 
-    return HttpResponse.json({
-      data: null,
-    });
+    return new HttpResponse(null, { status: 204 });
   }),
 ];
