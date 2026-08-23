@@ -27,6 +27,7 @@ export function Providers({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const [isMockWorkerReady, setIsMockWorkerReady] = useState(false);
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -48,8 +49,10 @@ export function Providers({
 
         if (isMounted) {
           await worker.start({
-            onUnhandledRequest: "bypass",
+            onUnhandledRequest: "warn",
           });
+
+          setIsMockWorkerReady(true);
         }
       } catch (error) {
         console.error("[MSW] Failed to start browser worker", error);
@@ -62,6 +65,10 @@ export function Providers({
       isMounted = false;
     };
   }, []);
+
+  if (!isMockWorkerReady) {
+    return null;
+  }
 
   return (
     <QueryClientProvider client={queryClient}>
