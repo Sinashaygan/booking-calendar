@@ -2,11 +2,9 @@ import {
   deleteReservation,
   getReservationById,
   getReservations,
-  updateReservation,
+  replaceReservation,
 } from "@/app/mocks/mock-db";
-import { hasReservationConflict } from "@/entities/reservation/model/conflict";
-import { reservationUpdateSchema } from "@/entities/reservation/model/schema";
-import type { Reservation } from "@/entities/reservation/model/types";
+import { prepareUpdateReservation } from "@/features/reservation-mutations/model/reservation-mutations";
 
 type RouteContext = {
   params: Promise<{ id: string }>;
@@ -27,12 +25,6 @@ export async function GET(_request: Request, { params }: RouteContext) {
 
 export async function PATCH(request: Request, { params }: RouteContext) {
   const { id } = await params;
-  const existing = getReservationById(id);
-
-  if (!existing) {
-    return errorResponse("Reservation not found", 404);
-  }
-
   let body: unknown;
 
   try {
@@ -41,26 +33,29 @@ export async function PATCH(request: Request, { params }: RouteContext) {
     return errorResponse("Invalid reservation update payload", 400);
   }
 
-  const parsed = reservationUpdateSchema.safeParse(body);
+  const result = prepareUpdateReservation({
+    id,
+    input: body,
+    reservations: getReservations(),
+  });
 
-  if (!parsed.success) {
-    return errorResponse("Invalid reservation update payload", 400);
+  if (!result.ok) {
+    const status =
+      result.reason === "not-found"
+        ? 404
+        : result.reason === "conflict"
+          ? 409
+          : 400;
+    const message =
+      result.reason === "not-found"
+        ? "Reservation not found"
+        : result.reason === "conflict"
+          ? "Reservation conflicts with an existing reservation"
+          : "Invalid reservation update payload";
+    return errorResponse(message, status);
   }
 
-  const candidate: Reservation = { ...existing, ...parsed.data, id };
-
-  if (
-    hasReservationConflict(candidate, getReservations(), {
-      excludeId: id,
-    })
-  ) {
-    return errorResponse(
-      "Reservation conflicts with an existing reservation",
-      409,
-    );
-  }
-
-  const updated = updateReservation(id, parsed.data);
+  const updated = replaceReservation(result.value);
 
   return updated
     ? Response.json(updated)

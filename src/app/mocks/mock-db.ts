@@ -1,10 +1,6 @@
 import { mockReservations } from "@/entities/reservation/model/mock-reservations";
 
-import type {
-  Reservation,
-  ReservationInput,
-  ReservationUpdateInput,
-} from "@/entities/reservation/model/types";
+import type { Reservation } from "@/entities/reservation/model/types";
 
 let reservations: Reservation[] = structuredClone(mockReservations);
 
@@ -24,27 +20,20 @@ export function insertReservation(reservation: Reservation): Reservation {
   return { ...reservation };
 }
 
-export function updateReservation(
-  id: string,
-  input: ReservationUpdateInput,
+export function replaceReservation(
+  replacement: Reservation,
 ): Reservation | undefined {
-  const index = reservations.findIndex((reservation) => reservation.id === id);
+  const index = reservations.findIndex((item) => item.id === replacement.id);
 
   if (index === -1) {
     return undefined;
   }
 
-  const updatedReservation: Reservation = {
-    ...reservations[index],
-    ...input,
-    id,
-  };
-
   reservations = reservations.map((reservation, currentIndex) =>
-    currentIndex === index ? updatedReservation : reservation,
+    currentIndex === index ? { ...replacement } : reservation,
   );
 
-  return { ...updatedReservation };
+  return { ...replacement };
 }
 
 export function deleteReservation(id: string): boolean {
@@ -63,9 +52,3 @@ export function resetMockDatabase(): void {
   reservations = structuredClone(mockReservations);
 }
 
-export function createReservationRecord(input: ReservationInput): Reservation {
-  return {
-    id: crypto.randomUUID(),
-    ...input,
-  };
-}

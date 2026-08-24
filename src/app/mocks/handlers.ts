@@ -1,25 +1,16 @@
 import { http, HttpResponse } from "msw";
 
 import {
-  createReservationRecord,
   getReservationById,
   getReservations,
   insertReservation,
-  updateReservation,
+  replaceReservation,
   deleteReservation,
 } from "./mock-db";
-
 import {
-  reservationInputSchema,
-  reservationUpdateSchema,
-} from "@/entities/reservation/model/schema";
-
-import type {
-  Reservation,
-  ReservationInput,
-  ReservationUpdateInput,
-} from "@/entities/reservation/model/types";
-import { hasReservationConflict } from "@/entities/reservation/model/conflict";
+  prepareCreateReservation,
+  prepareUpdateReservation,
+} from "@/features/reservation-mutations/model/reservation-mutations";
 
 const BASE_URL = "/api/reservations";
 
@@ -53,24 +44,21 @@ export const handlers = [
   http.post(BASE_URL, async ({ request }) => {
     const body = (await request.json()) as unknown;
 
-    const parsed = reservationInputSchema.safeParse(body);
+    const result = prepareCreateReservation({
+      input: body,
+      reservations: getReservations(),
+    });
 
-    if (!parsed.success) {
-      return errorResponse("Invalid reservation payload", 400);
-    }
-
-    const input = parsed.data as ReservationInput;
-
-    const conflict = hasReservationConflict(input, getReservations());
-
-    if (conflict) {
+    if (!result.ok) {
       return errorResponse(
-        "Reservation conflicts with an existing reservation",
-        409,
+        result.reason === "conflict"
+          ? "Reservation conflicts with an existing reservation"
+          : "Invalid reservation payload",
+        result.reason === "conflict" ? 409 : 400,
       );
     }
 
-    const reservation = insertReservation(createReservationRecord(input));
+    const reservation = insertReservation(result.value);
 
     return HttpResponse.json(
       {
@@ -85,46 +73,34 @@ export const handlers = [
   http.patch(`${BASE_URL}/:id`, async ({ params, request }) => {
     const id = String(params.id);
 
-    const existing = getReservationById(id);
-
-    if (!existing) {
-      return errorResponse("Reservation not found", 404);
-    }
-
     const body = (await request.json()) as unknown;
-
-    const parsed = reservationUpdateSchema.safeParse(body);
-
-    if (!parsed.success) {
-      return errorResponse("Invalid reservation update payload", 400);
-    }
-
-    const input = parsed.data as ReservationUpdateInput;
-
-    const candidate: Reservation = {
-      ...existing,
-      ...input,
+    const result = prepareUpdateReservation({
       id,
-    };
-
-    const conflict = hasReservationConflict(candidate, getReservations(), {
-      excludeId: id,
+      input: body,
+      reservations: getReservations(),
     });
 
-    if (conflict) {
-      return errorResponse(
-        "Reservation conflicts with an existing reservation",
-        409,
-      );
+    if (!result.ok) {
+      const status =
+        result.reason === "not-found"
+          ? 404
+          : result.reason === "conflict"
+            ? 409
+            : 400;
+      const message =
+        result.reason === "not-found"
+          ? "Reservation not found"
+          : result.reason === "conflict"
+            ? "Reservation conflicts with an existing reservation"
+            : "Invalid reservation update payload";
+      return errorResponse(message, status);
     }
 
-    const updated = updateReservation(id, input);
+    const updated = replaceReservation(result.value);
 
-    if (!updated) {
-      return errorResponse("Reservation not found", 404);
-    }
-
-    return HttpResponse.json(updated);
+    return updated
+      ? HttpResponse.json(updated)
+      : errorResponse("Reservation not found", 404);
   }),
 
   http.delete(`${BASE_URL}/:id`, ({ params }) => {
