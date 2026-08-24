@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Alert, Button, MenuItem, Stack, TextField } from "@mui/material";
+import { Alert, Button, CircularProgress, MenuItem, Stack, TextField } from "@mui/material";
 
 import type { ReservationInput } from "@/entities/reservation/model/types";
 
@@ -68,10 +68,22 @@ export function ReservationForm({
   return (
     <Stack
       component="form"
-      spacing={2}
+      spacing={3}
       onSubmit={handleSubmit(onSubmit)}
       dir="rtl"
-      sx={{ maxWidth: 520 }}
+      sx={{
+        maxWidth: 520,
+        gap: 0,
+        "& .MuiTextField-root": {
+          "& .MuiOutlinedInput-root": {
+            borderRadius: 2,
+            transition: "all .2s ease-in-out",
+            bgcolor: "background.paper",
+            "&:hover fieldset": { borderColor: "primary.main" },
+            "&.Mui-focused": { boxShadow: "0 0 0 3px rgba(79,70,229,.12)" },
+          },
+        },
+      }}
       noValidate
     >
       {submitError && (
@@ -187,11 +199,13 @@ export function ReservationForm({
             variant="outlined"
             onClick={onCancel}
             disabled={isSubmitDisabled}
+            sx={{ borderRadius: 2, px: 2, borderColor: "transparent", color: "text.secondary", "&:hover": { bgcolor: "action.hover", borderColor: "transparent" } }}
           >
             انصراف
           </Button>
         )}
-        <Button type="submit" variant="contained" disabled={isSubmitDisabled}>
+        <Button type="submit" variant="contained" disabled={isSubmitDisabled} sx={{ flex: 1, minHeight: 48, borderRadius: 2, fontWeight: 700, boxShadow: "0 8px 16px rgba(79,70,229,.2)" }}>
+          {isSubmitDisabled && <CircularProgress size={18} color="inherit" sx={{ ml: 1 }} />}
           {isSubmitDisabled ? "در حال ذخیره..." : submitLabel}
         </Button>
       </Stack>
