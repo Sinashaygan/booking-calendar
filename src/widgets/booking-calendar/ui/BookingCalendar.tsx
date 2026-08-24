@@ -3,7 +3,8 @@
 import { useMemo, useRef } from "react";
 
 import type FullCalendar from "@fullcalendar/react";
-import AddIcon from "@mui/icons-material/Add";
+// import AddIcon from "@mui/icons-material/Add";
+import { Add as AddIcon } from "@mui/icons-material";
 import {
   Alert,
   Box,
@@ -198,6 +199,7 @@ export function BookingCalendar() {
         minHeight: "100vh",
         px: { xs: 2, md: 4 },
         py: { xs: 3, md: 5 },
+        background: "radial-gradient(circle at 100% 0%, rgba(99,102,241,.08), transparent 28%), #f6f8fc",
       }}
     >
       <Stack
@@ -217,14 +219,19 @@ export function BookingCalendar() {
           onViewChange={handleToolbarViewChange}
         />
 
-        <Stack
-          direction="row"
-          sx={{ direction: "rtl", justifyContent: "flex-start" }}
-        >
+        <Stack direction="row" sx={{ direction: "rtl", justifyContent: "flex-start" }}>
           <Button
             variant="contained"
             startIcon={<AddIcon />}
             onClick={handleOpenCreateDrawer}
+            sx={{
+              px: 2.5,
+              py: 1.15,
+              borderRadius: 2,
+              boxShadow: "0 8px 18px rgba(79, 70, 229, .22)",
+              transition: "all .2s ease-in-out",
+              "&:hover": { transform: "translateY(-1px)", boxShadow: "0 10px 22px rgba(79, 70, 229, .28)" },
+            }}
           >
             افزودن رزرو
           </Button>
@@ -249,6 +256,8 @@ export function BookingCalendar() {
             borderRadius: 3,
             p: { xs: 1, md: 2 },
             minHeight: 420,
+            bgcolor: "background.paper",
+            boxShadow: "0 12px 30px rgba(15, 23, 42, 0.06)",
           }}
         >
           {isFetching && (
