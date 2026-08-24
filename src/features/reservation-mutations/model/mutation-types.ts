@@ -1,7 +1,5 @@
 import type {
   Reservation,
-  ReservationInput,
-  ReservationUpdateInput,
 } from "@/entities/reservation/model/types";
 
 export type MutationError = {
@@ -14,8 +12,11 @@ export type MutationSuccess<T> = {
   value: T;
 };
 
+export type MutationFailureReason = "validation" | "conflict" | "not-found";
+
 export type MutationFailure = {
   ok: false;
+  reason: MutationFailureReason;
   errors: MutationError[];
   conflicts: Reservation[];
 };
@@ -23,13 +24,13 @@ export type MutationFailure = {
 export type MutationResult<T> = MutationSuccess<T> | MutationFailure;
 
 export type CreateReservationCommand = {
-  input: ReservationInput;
+  input: unknown;
   reservations: readonly Reservation[];
   createId?: () => string;
 };
 
 export type UpdateReservationCommand = {
   id: string;
-  input: ReservationUpdateInput;
+  input: unknown;
   reservations: readonly Reservation[];
 };
