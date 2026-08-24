@@ -1,17 +1,21 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+
 import type {
   DatesSetArg,
   EventClickArg,
   EventInput,
 } from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
-import interactionPlugin from "@fullcalendar/interaction";
+import interactionPlugin, { DateClickArg } from "@fullcalendar/interaction";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import FullCalendar from "@fullcalendar/react";
 import faLocale from "@fullcalendar/core/locales/fa";
 
 import type { CalendarView } from "@/entities/calendar/model/types";
+import { parseReservationDate } from "@/entities/reservation/model/time-range";
+import { formatDateForUrl } from "@/shared/lib/date/date-utils";
 
 type CalendarGridProps = {
   view: CalendarView;
@@ -19,7 +23,7 @@ type CalendarGridProps = {
   events: EventInput[];
   onDateChange: (date: Date) => void;
   onViewChange: (view: CalendarView) => void;
-  onReservationClick: (id: string) => void;
+  onDayClick: (day: Date) => void;
   calendarRef: React.RefObject<FullCalendar | null>;
 };
 
@@ -29,10 +33,36 @@ export function CalendarGrid({
   events,
   onDateChange,
   onViewChange,
-  onReservationClick,
+  onDayClick,
   calendarRef,
 }: CalendarGridProps) {
+  const isSyncingFromUrlRef = useRef(false);
+
+  useEffect(() => {
+    const api = calendarRef.current?.getApi();
+
+    if (!api) {
+      return;
+    }
+
+    isSyncingFromUrlRef.current = true;
+
+    if (formatDateForUrl(api.getDate()) !== formatDateForUrl(date)) {
+      api.gotoDate(date);
+    }
+
+    if (api.view.type !== view) {
+      api.changeView(view);
+    }
+
+    isSyncingFromUrlRef.current = false;
+  }, [calendarRef, date, view]);
+
   function handleDatesSet(dateInfo: DatesSetArg) {
+    if (isSyncingFromUrlRef.current) {
+      return;
+    }
+
     const api = dateInfo.view.calendar;
 
     onDateChange(api.getDate());
@@ -46,8 +76,22 @@ export function CalendarGrid({
     }
   }
 
+  function handleDateClick(dateInfo: DateClickArg) {
+    onDayClick(dateInfo.date);
+  }
+
   function handleEventClick(eventInfo: EventClickArg) {
-    onReservationClick(eventInfo.event.id);
+    eventInfo.jsEvent.preventDefault();
+
+    const startValue = eventInfo.event.start;
+
+    if (!startValue) {
+      return;
+    }
+
+    const timestamp = parseReservationDate(startValue.toISOString());
+
+    onDayClick(timestamp !== undefined ? new Date(timestamp) : startValue);
   }
 
   return (
@@ -62,6 +106,7 @@ export function CalendarGrid({
       initialDate={date}
       events={events}
       datesSet={handleDatesSet}
+      dateClick={handleDateClick}
       eventClick={handleEventClick}
       height="auto"
       nowIndicator
