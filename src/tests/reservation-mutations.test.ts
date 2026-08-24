@@ -88,12 +88,38 @@ describe("reservation mutations", () => {
         {
           ...existingReservation,
           id: "r-2",
-          start: "2026-08-22T10:00:00",
-          end: "2026-08-22T11:00:00",
+          start: "2026-08-22T08:30:00",
+          end: "2026-08-22T09:30:00",
         },
       ],
     });
 
-    expect(result.ok).toBe(true);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.reason).toBe("conflict");
+      expect(result.conflicts).toHaveLength(1);
+    }
+  });
+
+  it("rejects invalid unknown create input without mutating reservations", () => {
+    const reservations = [existingReservation];
+    const result = prepareCreateReservation({
+      input: { ...validInput, title: "" },
+      reservations,
+      createId: () => "unused",
+    });
+
+    expect(result.ok).toBe(false);
+    expect(reservations).toEqual([existingReservation]);
+  });
+
+  it("returns not-found for an unknown update id", () => {
+    const result = prepareUpdateReservation({
+      id: "missing",
+      input: { title: "Updated" },
+      reservations: [existingReservation],
+    });
+
+    expect(result).toMatchObject({ ok: false, reason: "not-found" });
   });
 });
