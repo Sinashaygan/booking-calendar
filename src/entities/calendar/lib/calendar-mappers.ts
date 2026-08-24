@@ -20,6 +20,7 @@ export function reservationToCalendarEvent(
     end: reservation.end,
     backgroundColor: color,
     borderColor: color,
+    classNames: [`fc-event-status-${reservation.status}`],
     extendedProps: {
       resourceId: reservation.resourceId,
       status: reservation.status,
