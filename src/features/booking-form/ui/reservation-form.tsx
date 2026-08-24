@@ -8,6 +8,7 @@ import type { ReservationInput } from "@/entities/reservation/model/types";
 
 import type { BookingFormValues } from "../model/form-schema";
 import { bookingFormResolver } from "../model/resolver";
+import { ReservationDateTimeField } from "./reservation-datetime-field";
 
 type ResourceOption = {
   id: string;
@@ -155,14 +156,12 @@ export function ReservationForm({
         name="start"
         control={control}
         render={({ field }) => (
-          <TextField
-            {...field}
-            disabled={isSubmitDisabled}
+          <ReservationDateTimeField
             label="شروع"
-            placeholder="2026-08-22T08:30:00"
-            error={Boolean(errors.start)}
-            helperText={errors.start?.message}
-            fullWidth
+            value={field.value}
+            disabled={isSubmitDisabled}
+            error={errors.start?.message}
+            onChange={field.onChange}
           />
         )}
       />
@@ -171,14 +170,12 @@ export function ReservationForm({
         name="end"
         control={control}
         render={({ field }) => (
-          <TextField
-            {...field}
-            disabled={isSubmitDisabled}
+          <ReservationDateTimeField
             label="پایان"
-            placeholder="2026-08-22T09:00:00"
-            error={Boolean(errors.end)}
-            helperText={errors.end?.message}
-            fullWidth
+            value={field.value}
+            disabled={isSubmitDisabled}
+            error={errors.end?.message}
+            onChange={field.onChange}
           />
         )}
       />
