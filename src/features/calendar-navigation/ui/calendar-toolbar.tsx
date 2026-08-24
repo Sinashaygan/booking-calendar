@@ -4,6 +4,7 @@ import {
   Box,
   Button,
   ButtonGroup,
+  CircularProgress,
   Stack,
   ToggleButton,
   ToggleButtonGroup,
@@ -12,10 +13,12 @@ import {
 import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
 
 import type { CalendarView } from "@/entities/calendar/model/types";
+import { formatCalendarToolbarTitle } from "@/widgets/booking-calendar/lib/calendar-formatters";
 
 type CalendarToolbarProps = {
   currentDate: Date;
   currentView: CalendarView;
+  isFetching?: boolean;
   onPrevious: () => void;
   onNext: () => void;
   onToday: () => void;
@@ -43,16 +46,13 @@ const viewOptions: Array<{
 export function CalendarToolbar({
   currentDate,
   currentView,
+  isFetching = false,
   onPrevious,
   onNext,
   onToday,
   onViewChange,
 }: CalendarToolbarProps) {
-  const formattedDate = new Intl.DateTimeFormat("fa-IR", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  }).format(currentDate);
+  const formattedDate = formatCalendarToolbarTitle(currentView, currentDate);
 
   return (
     <Stack
@@ -67,9 +67,15 @@ export function CalendarToolbar({
         <CalendarDays size={24} color="#2563eb" />
 
         <Box>
-          <Typography variant="h6" sx={{ fontWeight: 700 }}>
-            تقویم رزروها
-          </Typography>
+          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+            <Typography variant="h6" sx={{ fontWeight: 700 }}>
+              تقویم رزروها
+            </Typography>
+
+            {isFetching && (
+              <CircularProgress size={16} aria-label="در حال به‌روزرسانی" />
+            )}
+          </Stack>
 
           <Typography variant="body2" color="text.secondary">
             {formattedDate}
