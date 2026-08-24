@@ -47,12 +47,15 @@ export function CreateReservationDrawer({
       slotProps={{
         paper: {
           sx: {
-            width: { xs: "100%", sm: 520 },
+            width: { xs: "100%", sm: 450 },
+            maxWidth: "100%",
+            boxShadow: "-12px 0 40px rgba(15, 23, 42, 0.12)",
+            backgroundImage: "none",
           },
         },
       }}
     >
-      <Box sx={{ p: 3, height: "100%", overflowY: "auto" }}>
+      <Box sx={{ p: { xs: 2, sm: 3.5 }, height: "100%", overflowY: "auto", bgcolor: "#fbfcff" }}>
         <Stack spacing={3}>
           <Stack
             direction="row"
@@ -63,7 +66,7 @@ export function CreateReservationDrawer({
           >
             <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
               <EventIcon fontSize="small" />
-              <Typography variant="h6">افزودن رزرو</Typography>
+              <Typography variant="h6" sx={{ fontWeight: 800 }}>افزودن رزرو</Typography>
             </Stack>
 
             <Tooltip title="بستن">

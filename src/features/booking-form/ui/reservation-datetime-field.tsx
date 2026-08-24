@@ -40,8 +40,8 @@ export function ReservationDateTimeField({
   }
 
   return (
-    <Stack spacing={0.5}>
-      <InputLabel error={Boolean(error)}>
+    <Stack spacing={0.75}>
+      <InputLabel error={Boolean(error)} sx={{ fontWeight: 600, color: "text.primary" }}>
         {label}
       </InputLabel>
 
@@ -59,11 +59,13 @@ export function ReservationDateTimeField({
         style={{
           width: "100%",
           padding: "14px 12px",
-          borderRadius: "4px",
+          borderRadius: "8px",
           border: error ? "1px solid #d32f2f" : "1px solid rgba(0, 0, 0, 0.23)",
           fontFamily: "inherit",
           fontSize: "1rem",
           backgroundColor: disabled ? "rgba(0, 0, 0, 0.06)" : "#fff",
+          transition: "all .2s ease-in-out",
+          outline: "none",
         }}
       />
 

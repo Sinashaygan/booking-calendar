@@ -9,7 +9,16 @@ import { NuqsAdapter } from "nuqs/adapters/next/app";
 const theme = createTheme({
   direction: "rtl",
   typography: {
-    fontFamily: "var(--font-vazirmatn), Arial, Helvetica, sans-serif",
+    fontFamily: "var(--app-font)",
+  },
+  components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        body: {
+          lineHeight: 1.8,
+        },
+      },
+    },
   },
   palette: {
     mode: "light",

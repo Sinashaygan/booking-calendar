@@ -3,9 +3,16 @@
 import {
   Box,
   Chip,
+  Divider,
   Stack,
   Typography,
 } from "@mui/material";
+
+import {
+  PersonOutlined as PersonOutlineIcon,
+  MeetingRoomOutlined as MeetingRoomOutlinedIcon,
+  AccessTime as AccessTimeIcon,
+} from "@mui/icons-material";
 
 import type { Reservation } from "@/entities/reservation/model/types";
 
@@ -45,8 +52,12 @@ export function CalendarEventItem({
       sx={{
         border: "1px solid",
         borderColor: "divider",
-        borderRadius: 2,
-        p: 2,
+        borderRadius: 2.5,
+        p: { xs: 1.75, sm: 2 },
+        bgcolor: "background.paper",
+        boxShadow: "0 4px 14px rgba(15, 23, 42, 0.05)",
+        transition: "all .2s ease-in-out",
+        "&:hover": { transform: "translateY(-2px)", boxShadow: "0 8px 20px rgba(15, 23, 42, 0.09)", borderColor: "primary.200" },
       }}
     >
       <Stack
@@ -67,27 +78,35 @@ export function CalendarEventItem({
             {reservation.title}
           </Typography>
 
-          <Typography variant="body2" color="text.secondary" noWrap>
-            {reservation.customerName}
-          </Typography>
+          <Stack spacing={0.5}>
+            <Stack direction="row" spacing={0.75} sx={{ alignItems: "center" }}>
+              <PersonOutlineIcon sx={{ fontSize: 17, color: "text.secondary" }} />
+              <Typography variant="body2" color="text.secondary" noWrap>{reservation.customerName}</Typography>
+            </Stack>
+            <Stack direction="row" spacing={0.75} sx={{ alignItems: "center" }}>
+              <MeetingRoomOutlinedIcon sx={{ fontSize: 17, color: "text.secondary" }} />
+              <Typography variant="body2" color="text.secondary" noWrap>{resourceLabel}</Typography>
+            </Stack>
+          </Stack>
 
-          <Typography variant="body2" color="text.secondary" noWrap>
-            {resourceLabel}
-          </Typography>
-
+          <Divider sx={{ my: 0.25 }} />
           <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
             <Chip
               size="small"
               label={getReservationStatusLabel(reservation.status)}
               sx={{
                 bgcolor: getReservationStatusColor(reservation.status),
-                color: "#fff",
+                color: reservation.status === "confirmed" ? "#166534" : reservation.status === "pending" ? "#92400e" : "#64748b",
+                fontWeight: 700,
               }}
             />
-            <Typography variant="body2" color="text.secondary">
+            <Stack direction="row" spacing={0.5} sx={{ alignItems: "center" }}>
+              <AccessTimeIcon sx={{ fontSize: 16, color: "primary.main" }} />
+              <Typography variant="body2" sx={{ color: "primary.main", fontWeight: 700 }}>
               {formatPersianTimeFromApi(reservation.start)} تا{" "}
               {formatPersianTimeFromApi(reservation.end)}
-            </Typography>
+              </Typography>
+            </Stack>
           </Stack>
         </Stack>
 

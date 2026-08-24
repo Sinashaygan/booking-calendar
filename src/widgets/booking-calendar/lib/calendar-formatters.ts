@@ -84,10 +84,10 @@ export function getReservationStatusLabel(status: ReservationStatus): string {
 export function getReservationStatusColor(status: ReservationStatus): string {
   switch (status) {
     case "confirmed":
-      return "#2563eb";
+      return "#dcfce7";
     case "pending":
-      return "#f59e0b";
+      return "#fef3c7";
     case "cancelled":
-      return "#94a3b8";
+      return "#f1f5f9";
   }
 }
