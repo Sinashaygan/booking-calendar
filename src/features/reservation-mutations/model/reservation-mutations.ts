@@ -1,6 +1,7 @@
 import { findReservationConflicts } from "@/entities/reservation/model/conflict";
 import {
   reservationInputSchema,
+  reservationUpdateSchema,
 } from "@/entities/reservation/model/schema";
 import type {
   Reservation,
@@ -14,7 +15,7 @@ import type {
   UpdateReservationCommand,
 } from "./mutation-types";
 
-function zodErrors(error: {
+export function zodErrors(error: {
   issues: readonly {
     path: PropertyKey[];
     message: string;
@@ -26,7 +27,7 @@ function zodErrors(error: {
   }));
 }
 
-function defaultIdFactory(): string {
+export function defaultIdFactory(): string {
   return `reservation-${crypto.randomUUID()}`;
 }
 
@@ -40,6 +41,7 @@ export function prepareCreateReservation({
   if (!parsed.success) {
     return {
       ok: false,
+      reason: "validation",
       errors: zodErrors(parsed.error),
       conflicts: [],
     };
@@ -50,6 +52,7 @@ export function prepareCreateReservation({
   if (conflicts.length > 0) {
     return {
       ok: false,
+      reason: "conflict",
       errors: [
         {
           field: "start",
@@ -81,18 +84,26 @@ export function prepareUpdateReservation({
   if (!current) {
     return {
       ok: false,
+      reason: "not-found",
       errors: [{ message: "Reservation was not found" }],
       conflicts: [],
     };
   }
 
+  const patch = reservationUpdateSchema.safeParse(input);
+
+  if (!patch.success) {
+    return {
+      ok: false,
+      reason: "validation",
+      errors: zodErrors(patch.error),
+      conflicts: [],
+    };
+  }
+
   const candidate: ReservationInput = {
-    title: input.title ?? current.title,
-    resourceId: input.resourceId ?? current.resourceId,
-    start: input.start ?? current.start,
-    end: input.end ?? current.end,
-    status: input.status ?? current.status,
-    customerName: input.customerName ?? current.customerName,
+    ...current,
+    ...patch.data,
   };
 
   const parsed = reservationInputSchema.safeParse(candidate);
@@ -100,6 +111,7 @@ export function prepareUpdateReservation({
   if (!parsed.success) {
     return {
       ok: false,
+      reason: "validation",
       errors: zodErrors(parsed.error),
       conflicts: [],
     };
@@ -112,6 +124,7 @@ export function prepareUpdateReservation({
   if (conflicts.length > 0) {
     return {
       ok: false,
+      reason: "conflict",
       errors: [
         {
           field: "start",
