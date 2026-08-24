@@ -14,7 +14,6 @@ import {
 
 import type { Reservation } from "@/entities/reservation/model/types";
 
-import { formatPersianFullDate } from "../lib/calendar-formatters";
 import { DayEventsList } from "./DayEventsList";
 
 type ResourceOption = {
@@ -59,19 +58,41 @@ export function DayEventsDialog({
       }}
       fullWidth
       maxWidth="sm"
+      slotProps={{
+        paper: {
+          sx: {
+            borderRadius: { xs: 0, sm: 3 },
+            boxShadow: "0 24px 70px rgba(15, 23, 42, 0.2)",
+            backgroundImage: "none",
+          },
+        },
+      }}
     >
       <DialogTitle
         sx={{
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          px: { xs: 2, sm: 3 },
+          py: 2.25,
+          bgcolor: "#fbfcff",
+          borderBottom: "1px solid",
+          borderColor: "divider",
         }}
       >
         <Stack spacing={0.5}>
-          <Typography variant="h6">رویدادهای روز</Typography>
+          <Typography variant="h6" sx={{ fontWeight: 800 }}>
+            رویدادهای روز
+          </Typography>
           {day && (
             <Typography variant="body2" color="text.secondary">
-              {formatPersianFullDate(day)}
+              رویدادهای{" "}
+              {new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
+                weekday: "long",
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              }).format(day)}
             </Typography>
           )}
         </Stack>
@@ -89,7 +110,10 @@ export function DayEventsDialog({
         </Tooltip>
       </DialogTitle>
 
-      <DialogContent dividers sx={{ position: "relative" }}>
+      <DialogContent
+        dividers
+        sx={{ position: "relative", p: { xs: 2, sm: 3 }, bgcolor: "#f8fafc" }}
+      >
         {isFetching && (
           <LinearProgress
             aria-label="در حال دریافت رزروها"
