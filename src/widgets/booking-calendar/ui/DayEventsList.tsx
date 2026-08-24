@@ -1,7 +1,7 @@
 "use client";
 
 import EventBusyIcon from "@mui/icons-material/EventBusy";
-import { Stack, Typography } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 
 import type { Reservation } from "@/entities/reservation/model/types";
 
@@ -29,10 +29,12 @@ export function DayEventsList({
 }: DayEventsListProps) {
   if (events.length === 0) {
     return (
-      <Stack spacing={1.5} sx={{ alignItems: "center", py: 4 }}>
-        <EventBusyIcon color="disabled" sx={{ fontSize: 40 }} />
+      <Stack spacing={1.5} sx={{ alignItems: "center", py: 6, px: 2, textAlign: "center" }}>
+        <Box sx={{ width: 64, height: 64, display: "grid", placeItems: "center", borderRadius: "50%", bgcolor: "primary.50", color: "primary.main" }}>
+          <EventBusyIcon sx={{ fontSize: 32 }} />
+        </Box>
         <Typography color="text.secondary">
-          برای این روز رزروی ثبت نشده است.
+          هیچ رزروی برای این روز ثبت نشده است
         </Typography>
       </Stack>
     );
