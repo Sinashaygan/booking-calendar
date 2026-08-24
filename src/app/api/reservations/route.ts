@@ -1,10 +1,8 @@
 import {
-  createReservationRecord,
   getReservations,
   insertReservation,
 } from "@/app/mocks/mock-db";
-import { hasReservationConflict } from "@/entities/reservation/model/conflict";
-import { reservationInputSchema } from "@/entities/reservation/model/schema";
+import { prepareCreateReservation } from "@/features/reservation-mutations/model/reservation-mutations";
 
 function errorResponse(message: string, status: number) {
   return Response.json({ message }, { status });
@@ -23,20 +21,21 @@ export async function POST(request: Request) {
     return errorResponse("Invalid reservation payload", 400);
   }
 
-  const parsed = reservationInputSchema.safeParse(body);
+  const result = prepareCreateReservation({
+    input: body,
+    reservations: getReservations(),
+  });
 
-  if (!parsed.success) {
-    return errorResponse("Invalid reservation payload", 400);
-  }
-
-  if (hasReservationConflict(parsed.data, getReservations())) {
+  if (!result.ok) {
     return errorResponse(
-      "Reservation conflicts with an existing reservation",
-      409,
+      result.reason === "conflict"
+        ? "Reservation conflicts with an existing reservation"
+        : "Invalid reservation payload",
+      result.reason === "conflict" ? 409 : 400,
     );
   }
 
-  const reservation = insertReservation(createReservationRecord(parsed.data));
+  const reservation = insertReservation(result.value);
 
   return Response.json(reservation, { status: 201 });
 }
